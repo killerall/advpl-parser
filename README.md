@@ -1,2 +1,2 @@
 # advpl-parser
-Parser Advpl com geração de tabela de simbulos
+Parser Advpl com geração de tabela de símbolos.
