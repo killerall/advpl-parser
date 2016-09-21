@@ -5,7 +5,7 @@
 grammar Advpl;
 options 
 {
-language = CSharp;
+language = Java;
 }
 program
 	:	preprocessorDeclaration*  
@@ -20,7 +20,14 @@ preprocessorDeclaration
 includeDeclaration
 	: INCLUDE (STRINGSIMPLE | STRING) 
 	;	
-       
+/*ifdef:
+        (IFDEF | IFNDEF) expression crlf
+        block
+        (ELSEDEF crlf block) *
+        ENDIFDEF   
+;
+        
+ */       
 ifdef:
         ((IFDEF | IFNDEF) expression)
         | ELSEDEF | ENDIFDEF   ;
@@ -30,7 +37,7 @@ defineDeclaration
 
 sources 
 	:
-	 classDeclaration| methodBody|funcDeclaration|wsServiceDeclaration| wsmethodBody|staticVariable |wsServiceClientDeclaration|wsmethodClientBody |(crlf)|defineDeclaration|(ifdef crlf);
+	 classDeclaration| methodBody|funcDeclaration|wsServiceDeclaration|restmethodBody| wsmethodBody|staticVariable |wsServiceClientDeclaration|wsmethodClientBody |(crlf)|defineDeclaration|restServiceDeclaration|(ifdef crlf);
 
 
 modifiersFunction  
@@ -38,35 +45,65 @@ modifiersFunction
 	USER
     |   STATIC
     |   MAIN
+    |   PROJECT
     ;
 //-----------------------------------------------------------
 // variaveis statics
 //-----------------------------------------------------------
 staticVariable
-	:	STATIC staticVariableDeclarationStatement 
+	:	STATIC localVariableDeclarationStatement 
 	;
 //-----------------------------------------------------------
-// Defin?o da classe
+// Definão da classe
 //-----------------------------------------------------------
 classDeclaration:
-                  CLASS identifier fromClass? crlf
-                  dataDefinition*
+                  CLASS identifier CAMELCASE? fromClass?  crlf
+                  (dataDefinition|serializabledataDefinition)*
                   methodDefinition*
-                  (ENDCLASS|(END CLASS) )  crlf
+                  (ENDCLASS|(END CLASS) )  (crlf|EOF)
                 ;
 fromClass:
              FROM identifier;
 dataDefinition:
-                 DATA identifier crlf;
+                 DATA identifier (AS wsDataType)? crlf;
+serializabledataDefinition:
+        CAMELCASE DATA identifier (AS wsDataType )? crlf;
 methodDefinition:
                  METHOD identifier arguments 'CONSTRUCTOR'? crlf;
 methodBody:
                  METHOD identifier (LPAREN formalParameters? RPAREN)? CLASS identifier crlf
                  	initFuncOrMethod?   block 	
 ;
+//-----------------------------------------------------------
+// Definão de REST
+//-----------------------------------------------------------
+
+restServiceDeclaration:
+                  WSRESTFUL identifier DESCRIPTION expression (FORMAT literal)? crlf
+                  wsdataDefinition*
+                  restmethodDefinition*
+                  END WSRESTFUL crlf
+                ;
+
+restmethodDefinition :                        
+                 WSMETHOD ('GET'|'PUT'|'POST'|'DELETE') identifier?  (DESCRIPTION expression )?
+                 (WSSYNTAX literal) ?
+                 (('PATH') expression)?
+                 (PRODUCES identifier)?
+                 (REQUEST literal)?
+                 (RESPONSE identifier)?
+                 crlf;
+restmethodBody:
+                 WSMETHOD ('GET'|'PUT'|'POST'|'DELETE') identifier 
+                 (PATHPARAM expressionList )?
+                 (QUERYPARAM expressionList)?
+                 (WSREST|WSRESTFUL) identifier crlf
+                 
+                 	initFuncOrMethod?   block 	
+            ;
 
 //-----------------------------------------------------------
-// Defin?o de WebService
+// Definão de WebService
 //-----------------------------------------------------------
 
 wsServiceDeclaration:
@@ -77,7 +114,7 @@ wsServiceDeclaration:
                 ;
 
 wsdataDefinition:
-                 WSDATA identifier AS wsDataType crlf;
+                 WSDATA identifier AS wsDataType OPTIONAL? crlf;
 wsmethodDefinition:
                  WSMETHOD identifier arguments? (DESCRIPTION literal)? crlf;
 wsmethodBody:
@@ -89,7 +126,7 @@ wsReceive: WSRECEIVE formalParameters;
 wsSend: WSSEND formalParameters ;
 wsDataType: identifier (OF identifier)?;
 //-----------------------------------------------------------
-// Defin?o de WebServiceCliente
+// Definão de WebServiceCliente
 //-----------------------------------------------------------
 
 wsServiceClientDeclaration:
@@ -108,7 +145,7 @@ wsmethodClientBody:
 
 endWSMethod: END WSMETHOD;
 //-----------------------------------------------------------
-// Defin?o da Funcao
+// Definão da Funcao
 //-----------------------------------------------------------
 
 funcDeclaration 
@@ -129,11 +166,6 @@ initFuncOrMethod
 staticVariableBeforeLocal:
 				staticVariable;			
 localVariableDeclarationStatement 
-    :   expression
-        (COMMA expression
-        )*
-    ;
-staticVariableDeclarationStatement 
     :   expression
         (COMMA expression
         )*
@@ -194,7 +226,7 @@ returnvalues
 		
 statementExpression
 	:expression ;	
-//Removido o Assigment pois, se deixamos o return ser um expression, e podemos come?ar com expression como commando direto 
+//Removido o Assigment pois, se deixamos o return ser um expression, e podemos começar com expression como commando direto 
 //a gramatica na fica mais LL(*) e precisamos ativar o backtracer, que onera a performace.	
 expression
 	:  primary    #ExprPrimary
@@ -209,11 +241,11 @@ expression
     |   expression ALIASACCESS expression #AliasAssignment
     |   expression    
          (PLUSEQUALS 
-        |'-='<assoc=right>
-        |'*='<assoc=right>
-        |'/='<assoc=right>        
-        |':='<assoc=right>
-        |'^'<assoc=right>
+        |'-='
+        |'*='
+        |'/='
+        |':='
+        |'^'
          )    
         expression # Assignment
     
@@ -225,7 +257,6 @@ expression
     
     ;
 primary
-    
 	: '(' expressionList ')'        #Parens
         | ARROBA? identifier arrayAccess        #VarArrayAccess
         | identifier arguments  (arrayAccess?)  #Call
@@ -241,7 +272,6 @@ primary
         | ECOMERCIAL expression   ('.' expression)? methodAccessLoop?   #MacroExecucao
         
     ;
-    
 //| ARROBA identifier         #VarByRef
 //| identifier  arrayAccess ':' (identifier)?  #VarArrayAccess
 /*
@@ -253,14 +283,14 @@ identifier:
           |'PASSWORD'|'OR'|'OBJECT'|'RESET'|'ORDER'|'INDEX'|'SET' |'CENTURY' |'ON'| 'OFF'| 'BACK'
           |'ERROR'|'MODULO'|'FIELDSIZES'|'PANEL'|'EXEC'|'VAR'|'ONSTOP'|'RESNAME'|'PROMPT'|'GROUP'
           |'CONNECT'| 'SMTP' |'ACCOUNT' |'RESULT' |'SSL'|'TLS'|'SEND'|'MAIL'| 'DISCONNECT'|'ITEMS'
-    |'ADD'|'INIT'|'NEW'|'ENABLE'|'PICTURE'|'GET'|SELF| 'BEGIN'|'DATE'| 'END' |'SEEK'
+    |'ADD'|'INIT'|'NEW'|'ENABLE'|'PICTURE'|'GET'|SELF| 'BEGIN'|'DATE'| 'END' |'SEEK'|'DEFAULT'
     |'TYPE'| 'TABLE'|'NAME'|'ACTIVATE'|'AT'|IDENTIFIER;
 */
 chIdentifier:
-          TO|SELF|END|DEFAULT|CLASS|IDENTIFIER|DATA|FROM;
+          TO|SELF|END|DEFAULT|CLASS|IDENTIFIER|DATA|FROM|OPTIONAL;
 
 identifier:
-          WSMETHOD|OF|ASSUME|DESCRIPTION|AS|TO|NEXT|END|DATA|'SELF'|':'|  IDENTIFIER
+          DEFAULT|PROJECT|WSMETHOD|OF|ASSUME|DESCRIPTION|AS|TO|NEXT|END|DATA|'SELF'|':'|  IDENTIFIER
           ;
 arrayAccess
     :  ( '[' expressionList ']' )+
@@ -330,7 +360,7 @@ docaseStatement
 		;
                     
 //-----------------------------------------------    
-//Instru??es para ler o CH do protheus
+//Instruções para ler o CH do protheus
 //-----------------------------------------------    
 chStatement:
                (chIdentifier | arrobaDefine               )
@@ -758,6 +788,7 @@ USER		:	'USER';
 MAIN		:	'MAIN';
 FUNCTION	:	'FUNCTION';
 SELF		:	'SELF';
+PROJECT		:   'PROJECT';
 
 AND		:	'.AND.';
 OR		:	'.OR.';
@@ -777,7 +808,8 @@ WSSERVICE       :       'WSSERVICE';
 NAMESPACE       :       'NAMESPACE';
 ENDWSCLIENT     :       'ENDWSCLIENT';
 ENDWSSERVICE    :       'ENDWSSERVICE';
-
+WSRESTFUL       :       'WSRESTFUL';
+FORMAT          :       'FORMAT';
 WSMETHOD        :       'WSMETHOD';
 WSDATA          :       'WSDATA';
 WSRECEIVE       :       'WSRECEIVE';
@@ -785,7 +817,15 @@ WSSEND          :       'WSSEND';
 DESCRIPTION     :       'DESCRIPTION';
 AS              :       'AS';
 OF              :       'OF';
-    
+PRODUCES        :       'PRODUCES';
+OPTIONAL        :       'OPTIONAL';
+WSSYNTAX        :       'WSSYNTAX';
+RESPONSE        :       'RESPONSE';
+REQUEST         :       'REQUEST';
+QUERYPARAM      :       'QUERYPARAM';
+WSREST          :       'WSREST';
+CAMELCASE       :       'CAMELCASE';
+PATHPARAM       :       'PATHPARAM';
 //BEGIN           :       'BEGIN';
 LPAREN	: '(' ;
 
