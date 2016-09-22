@@ -4,6 +4,8 @@ using advpl_parser.grammar;
 using advpl_parser.util;
 using advpl_parser;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System.IO;
 
 class Program
 {
@@ -25,18 +27,12 @@ class Program
     }
     private void RunParser(string source)
     {
-        NoCaseANTLRFileStream inputStream = new NoCaseANTLRFileStream(source);
-        AdvplLexer lexer = new AdvplLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
-        AdvplParser advplParser = new AdvplParser(commonTokenStream);
-        advplParser.RemoveErrorListeners();
-        AdvplErrorListener errorListener = new AdvplErrorListener();
-        advplParser.AddErrorListener(errorListener);
-        ParserRuleContext tree = advplParser.program();
-        AdvplCompileInfo info = new AdvplCompileInfo();
-        info.Errors = errorListener.Errors;
-        string json = JsonConvert.SerializeObject(info);
-        System.Console.WriteLine(json);
+
+        AdvplLanguageServer server = new AdvplLanguageServer();
+
+        server.Start(Console.OpenStandardInput(), Console.OpenStandardOutput()).Wait();
+
+        //Start(Console.OpenStandardInput(), Console.OpenStandardOutput()).Wait();
         /*if (advplParser.NumberOfSyntaxErrors == 0)
         {
             System.Console.WriteLine("OK");
@@ -54,4 +50,20 @@ class Program
         }*/
 
     }
+    public async Task Start(Stream inputStream, Stream outputStream)
+    {
+
+        /*NoCaseANTLRFileStream input= new NoCaseANTLRFileStream(source);
+        AdvplLexer lexer = new AdvplLexer(input);
+        CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+        AdvplParser advplParser = new AdvplParser(commonTokenStream);
+        advplParser.RemoveErrorListeners();
+        AdvplErrorListener errorListener = new AdvplErrorListener();
+        advplParser.AddErrorListener(errorListener);
+        ParserRuleContext tree = advplParser.program();
+        AdvplCompileInfo info = new AdvplCompileInfo();
+        info.Errors = errorListener.Errors;
+        string json = JsonConvert.SerializeObject(info);
+        System.Console.WriteLine(json);*/
     }
+}
