@@ -10,18 +10,7 @@ using Antlr4.Runtime.Misc;
 
 namespace advpl_parser.util
 {
-    class AdvplErroInfo
-    {
-        public int Line;
-        public int Column;
-        public int TokenSize;
-        public string Message;
-        public override string ToString()
-        {
-            return "[" + Line + "]" + "[" + Column + ":" + TokenSize + "][" + Message + "]";
-        }
-    }
-
+   
 
     class AdvplErrorListener : BaseErrorListener
     {
@@ -32,10 +21,8 @@ namespace advpl_parser.util
         }
         public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {
-
-
             
-            AdvplErroInfo info = new AdvplErroInfo();
+            AdvplError info = new AdvplError();
             info.Line = line;
             
             info.Column = charPositionInLine;

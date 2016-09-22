@@ -2,6 +2,8 @@
 using Antlr4.Runtime;
 using advpl_parser.grammar;
 using advpl_parser.util;
+using advpl_parser;
+using Newtonsoft.Json;
 
 class Program
 {
@@ -31,20 +33,25 @@ class Program
         AdvplErrorListener errorListener = new AdvplErrorListener();
         advplParser.AddErrorListener(errorListener);
         ParserRuleContext tree = advplParser.program();
-
-        if (advplParser.NumberOfSyntaxErrors == 0)
+        AdvplCompileInfo info = new AdvplCompileInfo();
+        info.Errors = errorListener.Errors;
+        string json = JsonConvert.SerializeObject(info);
+        System.Console.WriteLine(json);
+        /*if (advplParser.NumberOfSyntaxErrors == 0)
         {
             System.Console.WriteLine("OK");
         }
         else
         {
+            
             System.Console.WriteLine("AdvplParser Error.");
+            
             foreach (AdvplErroInfo info in errorListener.Errors)
             {
                 System.Console.WriteLine(info.ToString());
             }
-            
-        }
-            
-        }
+            //string json = JsonConvert.SerializeObject(obj);
+        }*/
+
+    }
     }
