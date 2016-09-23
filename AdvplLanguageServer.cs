@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Antlr4.Runtime;
+using advpl_parser.grammar;
+using advpl_parser.util;
+using Newtonsoft.Json;
 namespace advpl_parser
 {
     public class Message
@@ -64,14 +67,49 @@ namespace advpl_parser
             }
             
         }
-
+        public void SendResponse(Response response, dynamic body = null)
+        {
+            if (body != null)
+            {
+                response.SetBody(body);
+            }
+            SendMessage(response);
+        }
         public void Initialize(Response response, dynamic args)
         {
 
         }
         public void Parse(Response response, dynamic args)
         {
-
+            string source = getString(args, "content");
+            NoCaseANTLRFileStream input = new NoCaseANTLRFileStream(source);
+            AdvplLexer lexer = new AdvplLexer(input);
+            CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
+            AdvplParser advplParser = new AdvplParser(commonTokenStream);
+            advplParser.RemoveErrorListeners();
+            AdvplErrorListener errorListener = new AdvplErrorListener();
+            advplParser.AddErrorListener(errorListener);
+            ParserRuleContext tree = advplParser.program();
+            AdvplCompileInfo info = new AdvplCompileInfo();
+            info.Errors = errorListener.Errors;
+            string json = JsonConvert.SerializeObject(info);
+            SendResponse(response, json);
+            //System.Console.WriteLine(json);
+        }
+        private static string getString(dynamic args, string property, string dflt = null)
+        {
+            var s = (string)args[property];
+            if (s == null)
+            {
+                return dflt;
+            }
+            s = s.Trim();
+            if (s.Length == 0)
+            {
+                return dflt;
+            }
+            return s;
         }
     }
+
 }

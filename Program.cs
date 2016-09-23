@@ -9,15 +9,18 @@ using System.IO;
 
 class Program
 {
-    private static void Main(string[] args)
+    private static int Main(string[] argv)
     {
-        (new Program()).Run(args);
+        (new Program()).Run(argv);
+        return 0;
+        
     }
     public void Run(string[] args)
     {
         try
         {
-            RunParser(args[0]);
+            RunParser();
+
         }
         catch (Exception ex)
         {
@@ -25,7 +28,7 @@ class Program
         }
 
     }
-    private void RunParser(string source)
+    private void RunParser()
     {
 
         AdvplLanguageServer server = new AdvplLanguageServer();
@@ -38,8 +41,7 @@ class Program
             System.Console.WriteLine("OK");
         }
         else
-        {
-            
+        {            
             System.Console.WriteLine("AdvplParser Error.");
             
             foreach (AdvplErroInfo info in errorListener.Errors)
