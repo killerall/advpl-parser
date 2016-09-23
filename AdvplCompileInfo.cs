@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace advpl_parser
 {
-    class AdvplCompileInfo
+    class AdvplCompileInfo : ResponseBody
     {
         public ArrayList Errors;
         

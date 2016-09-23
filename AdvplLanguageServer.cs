@@ -81,8 +81,8 @@ namespace advpl_parser
         }
         public void Parse(Response response, dynamic args)
         {
-            string source = getString(args, "content");
-            NoCaseANTLRFileStream input = new NoCaseANTLRFileStream(source);
+            string source = getString(args, "source");
+            NoCaseAntlrStringStream input = new NoCaseAntlrStringStream(source);
             AdvplLexer lexer = new AdvplLexer(input);
             CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
             AdvplParser advplParser = new AdvplParser(commonTokenStream);
@@ -92,8 +92,8 @@ namespace advpl_parser
             ParserRuleContext tree = advplParser.program();
             AdvplCompileInfo info = new AdvplCompileInfo();
             info.Errors = errorListener.Errors;
-            string json = JsonConvert.SerializeObject(info);
-            SendResponse(response, json);
+            //string json = JsonConvert.SerializeObject(info);
+            SendResponse(response, info);
             //System.Console.WriteLine(json);
         }
         private static string getString(dynamic args, string property, string dflt = null)

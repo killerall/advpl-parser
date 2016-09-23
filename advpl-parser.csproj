@@ -69,6 +69,7 @@
     <Compile Include="Protocol.cs" />
     <Compile Include="util\AdvplErrorListener.cs" />
     <Compile Include="util\NoCaseANTLRFileStream.cs" />
+    <Compile Include="util\NoCaseAntlrStringStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
