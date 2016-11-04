@@ -64,9 +64,26 @@
     <Compile Include="AdvplCompileInfo.cs" />
     <Compile Include="AdvplError.cs" />
     <Compile Include="AdvplLanguageServer.cs" />
+    <Compile Include="expression\BinaryExpression.cs" />
+    <Compile Include="expression\Expression.cs" />
+    <Compile Include="expression\ExpressionConstants.cs" />
+    <Compile Include="expression\ExpressionList.cs" />
+    <Compile Include="expression\Identifier.cs" />
+    <Compile Include="expression\LiteralExpression.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol.cs" />
+    <Compile Include="symbolTable\BaseScope.cs" />
+    <Compile Include="symbolTable\ClassSymbol.cs" />
+    <Compile Include="symbolTable\FunctionSymbol.cs" />
+    <Compile Include="symbolTable\GlobalScope.cs" />
+    <Compile Include="symbolTable\LocalScope.cs" />
+    <Compile Include="symbolTable\MethodSymbol.cs" />
+    <Compile Include="symbolTable\Scope.cs" />
+    <Compile Include="symbolTable\ScopedSymbol.cs" />
+    <Compile Include="symbolTable\Symbol.cs" />
+    <Compile Include="symbolTable\Type.cs" />
+    <Compile Include="symbolTable\VariableSymbol.cs" />
     <Compile Include="util\AdvplErrorListener.cs" />
     <Compile Include="util\NoCaseANTLRFileStream.cs" />
     <Compile Include="util\NoCaseAntlrStringStream.cs" />
@@ -79,6 +96,7 @@
     </Antlr4>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
