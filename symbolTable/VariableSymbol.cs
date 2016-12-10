@@ -11,12 +11,12 @@ namespace advpl_parser.symbolTable
     class VariableSymbol : Symbol
     {
         private ArrayList m_expressions { get; set; } = new ArrayList();
-        private String assumeType = "";
+        public String AssumeType {get;set;}
         private VariableSymbol viculado;
 
         public VariableSymbol(String name, Type type) : base(name, type)
         {
-            
+            AssumeType = "";
         }
         public bool hasExpression()
         {

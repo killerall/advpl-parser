@@ -7,6 +7,9 @@ using Antlr4.Runtime;
 using advpl_parser.grammar;
 using advpl_parser.util;
 using Newtonsoft.Json;
+using advpl_parser.listener;
+using Antlr4.Runtime.Tree;
+
 namespace advpl_parser
 {
     public class Message
@@ -90,6 +93,13 @@ namespace advpl_parser
             AdvplErrorListener errorListener = new AdvplErrorListener();
             advplParser.AddErrorListener(errorListener);
             ParserRuleContext tree = advplParser.program();
+
+            //Cria a tabela de symbolo
+            SymbolTableDefPhase tableSymbolList = new SymbolTableDefPhase();
+            ParseTreeWalker walkerGeneral = new ParseTreeWalker();
+            walkerGeneral.Walk(tableSymbolList, tree);
+
+
             AdvplCompileInfo info = new AdvplCompileInfo();
             info.Errors = errorListener.Errors;
             //string json = JsonConvert.SerializeObject(info);

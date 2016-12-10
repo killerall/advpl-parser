@@ -10,11 +10,11 @@ namespace advpl_parser.expression
     class Expression
     {
         public String Content { get; set; }
-        ParserRuleContext ctx;
+        public ParserRuleContext Context { get; set; }
 
         public Expression(ParserRuleContext ctx)
         {
-            this.ctx = ctx;
+            Context = ctx;
             Content = ctx.GetText();
         }
         public Expression()

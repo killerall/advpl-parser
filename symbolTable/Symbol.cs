@@ -27,5 +27,9 @@ namespace advpl_parser.symbolTable
         {
             this.type = type;
         }
+        public void setContext(ParserRuleContext ctx)
+        {
+            context_create = ctx;
+        }
     }
 }

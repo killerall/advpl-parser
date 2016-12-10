@@ -12,8 +12,8 @@ namespace advpl_parser.symbolTable
         Dictionary<String, Symbol> arguments = new Dictionary<String, Symbol>();
         ArrayList paramNames;
         Scope enclosingScope;
-        private int startFuncionPos { get; set; }
-        private int endFuncionPos { get; set; }
+        public int startFuncionPos { get; set; }
+        public int endFuncionPos { get; set; }
 
         public FunctionSymbol(String name, Type retType, Scope enclosingScope) :base(name, retType)
         {   
