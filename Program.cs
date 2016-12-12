@@ -6,11 +6,14 @@ using advpl_parser;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.IO;
+using advpl_parser.documentation;
 
 class Program
 {
     private static int Main(string[] argv)
     {
+        //DocumentationUtils.getInstance().getFunctionInDb();
+
         (new Program()).Run(argv);
         return 0;
         

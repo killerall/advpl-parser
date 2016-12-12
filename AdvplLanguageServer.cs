@@ -9,6 +9,8 @@ using advpl_parser.util;
 using Newtonsoft.Json;
 using advpl_parser.listener;
 using Antlr4.Runtime.Tree;
+using advpl_parser.documentation;
+using System.Collections;
 
 namespace advpl_parser
 {
@@ -56,6 +58,9 @@ namespace advpl_parser
                         break;
                     case "parse":
                         Parse(response, args);
+                        break;
+                    case "completion":
+                        Completion(response, args);
                         break;
                 }
             }
@@ -105,6 +110,14 @@ namespace advpl_parser
             //string json = JsonConvert.SerializeObject(info);
             SendResponse(response, info);
             //System.Console.WriteLine(json);
+        }
+        public void Completion(Response response, dynamic args)
+        {
+            
+            ArrayList functions  = DocumentationUtils.getInstance().getFunctionInDb();
+            AdvplDocInfo info = new AdvplDocInfo();
+            info.functions = functions;
+            SendResponse(response, info);
         }
         private static string getString(dynamic args, string property, string dflt = null)
         {
